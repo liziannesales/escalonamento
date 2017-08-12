@@ -1,0 +1,93 @@
+package escalonamento.rr;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Scanner;
+
+import escalonamento.Processo;
+import escalonamento.Agendamento;
+import escalonamento.AgendamentoItem;
+import escalonamento.AlgoritmoAgendamento;
+
+public class RoundRobin extends AlgoritmoAgendamento {
+
+    protected Integer quantum;
+
+    public RoundRobin(List<Processo> processos, Integer quantum, Scanner s){
+        super(processos, "RR"+quantum, s);
+        this.quantum = quantum;
+    }
+
+    public  Agendamento gerarAgendamentoProcesso() {
+        //Ordenar processo por tempo de chegada
+        Collections.sort(processos, new Comparator<Processo>() {
+            @Override
+            public int compare(Processo p1, Processo p2) {
+                return p1.getTempoChegada().compareTo(p2.getTempoChegada());
+            }
+        });
+
+
+        while(!processos.isEmpty()){
+
+            if(processoEmExecucao != null){
+
+                //Verificar se o processo em execução terminou
+                if(processoEmExecucao.getTempoExecucao() == currentTime-startTimeProcEmExec){
+                	agendamento.add(new AgendamentoItem(processoEmExecucao.getId(), 
+            				startTimeProcEmExec, currentTime, true,
+            				processoEmExecucao.getTempoChegada(),
+            				processoEmExecucao.getDuracao()));
+                	processos.remove(processoEmExecucao);
+                    
+                    processoEmExecucao.calcularMetricas(startTimeProcEmExec, currentTime, writer);
+                    
+                    processoEmExecucao = null;
+                    startTimeProcEmExec = null;
+                    
+                    addProcesso();
+                }
+                //Verificar se o processo em execução esta bloqueado
+                else if(processoEmExecucao.isBloqueado(currentTime)){
+                    agendamento.add(new AgendamentoItem(processoEmExecucao.getId(), startTimeProcEmExec, currentTime, false));
+                    processoEmExecucao.setTempoExecucao(processoEmExecucao.getTempoExecucao() - ( currentTime-startTimeProcEmExec));
+                    processoEmExecucao = null;
+                    startTimeProcEmExec = null;
+                }
+                //Verificar se o processo em execução passou do tempo
+                else if(currentTime-startTimeProcEmExec >= quantum){
+                    Integer remainingTime = processoEmExecucao.getTempoExecucao() - (currentTime-startTimeProcEmExec);
+                    processoEmExecucao.setTempoExecucao(remainingTime);
+                    processoQueue.add(processoEmExecucao);
+                    agendamento.add(new AgendamentoItem(processoEmExecucao.getId(), startTimeProcEmExec, currentTime, false));
+                    processoEmExecucao = null;
+                    startTimeProcEmExec = null;
+                }
+
+            }
+
+            preencherFilaProcesso();
+
+            //Se não existe processo pronto
+            if (processoQueue.isEmpty()){
+                currentTime++;
+                continue;
+            }
+
+            if(processoEmExecucao != null){
+                currentTime++;
+                continue;
+            }
+
+            executarProcesso(processoQueue.get(0));
+
+        }
+
+        writer.close();
+        
+        agendamento.ajustarCPU(currentTime);
+
+        return agendamento;
+
+    }
+}
