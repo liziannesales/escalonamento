@@ -46,6 +46,8 @@ public class Lottery extends AlgoritmoAgendamento {
                     
                     processoEmExecucao = null;
                     startTimeProcEmExec = null;
+                    
+                    addProcesso();
                 }
                 //Verificar se o processo em execução esta bloqueado
                 else if(processoEmExecucao.isBloqueado(currentTime)){
@@ -93,7 +95,7 @@ public class Lottery extends AlgoritmoAgendamento {
             int winnerTicket = new Random().nextInt(maxTicket);
 
             //Encontrar processo com o ticket vencedor
-            Processo winnerProcess = getWinnerProcess(winnerTicket); 
+            Processo winnerProcess = getProcessoVencedor(winnerTicket); 
             		
             executarProcesso(winnerProcess);
         }
@@ -105,7 +107,7 @@ public class Lottery extends AlgoritmoAgendamento {
         return agendamento;
     }
     
-    public Processo getWinnerProcess(Integer winnerTicket){
+    public Processo getProcessoVencedor(Integer winnerTicket){
     	for(Processo process: processoQueue){
     		for(Integer ticket: process.getTickets()){
     			if(ticket.equals(winnerTicket)){

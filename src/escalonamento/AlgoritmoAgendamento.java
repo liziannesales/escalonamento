@@ -19,7 +19,7 @@ public abstract class AlgoritmoAgendamento {
     protected Scanner s;
     
     public AlgoritmoAgendamento(List<Processo> processos, String nome, Scanner s){
-        processos = new ArrayList<Processo>(processos);
+        this.processos = new ArrayList<Processo>(processos);
         processoQueue = new ArrayList<Processo>();
         currentTime = 0;
         agendamento = new Agendamento(nome);
@@ -44,30 +44,32 @@ public abstract class AlgoritmoAgendamento {
         for(Processo processo : processos){
             //Chegada de processos que não estão bloqueados
             if(processo.getTempoChegada().compareTo(currentTime) <= 0 && !(processo.isBloqueado(currentTime))
-            		&& !processoQueue.contains(processo)){
+            	&& !processo.equals(processoEmExecucao) && !processoQueue.contains(processo)){
                 processoQueue.add(processo);
                 continue;
             }
             //Processos que estavam bloqueados mas que agora estão prontos
-            if(processo.getBloquearAte().compareTo(currentTime) <= 0 && !processoQueue.contains(processo)){
+            if(processo.getBloquearAte() != -1 && processo.getBloquearAte().compareTo(currentTime) <= 0 
+            	&& !processo.equals(processoEmExecucao)	&& !processoQueue.contains(processo)){
                 processoQueue.add(processo);
             }
         }
     }
     
     public void preencherFilaProcessoComExtraQuantum(){
-        for(Processo process : processos){
+        for(Processo processo : processos){
             //Chegada de processos que não estão bloqueados
-            if(process.getTempoChegada().compareTo(currentTime) <= 0 && !(process.isBloqueado(currentTime))
-            		&& !processoQueue.contains(process)){
-                processoQueue.add(process);
+            if(processo.getTempoChegada().compareTo(currentTime) <= 0 && !(processo.isBloqueado(currentTime))
+            	&& !processo.equals(processoEmExecucao)	&& !processoQueue.contains(processo)){
+                processoQueue.add(processo);
                 
                 addExtraQuantum();
                 continue;
             }
             //Processos que estavam bloqueados mas que agora estão prontos
-            if(process.getBloquearAte().compareTo(currentTime) <= 0 && !processoQueue.contains(process)){
-                processoQueue.add(process);
+            if(processo.getBloquearAte() != -1 && processo.getBloquearAte().compareTo(currentTime) <= 0 
+            	&& !processo.equals(processoEmExecucao)	&& !processoQueue.contains(processo)){
+                processoQueue.add(processo);
                 
                 addExtraQuantum();
             }

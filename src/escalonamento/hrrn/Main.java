@@ -42,10 +42,6 @@ public class Main {
         Agendamento agendamento = algAgendamento.gerarAgendamentoProcesso();
         System.out.println("HRRN done");
         
-//        SchedulingAlgorithm rr4Alg = new RoundRobin(processos, 2, s);
-//        Schedule rr4Schedule = rr4Alg.generateProcessSchedule();
-//        System.out.println("RR4 done");
-        
         long stopTime = System.currentTimeMillis();
         
         discussion(stopTime - startTime, agendamento);

@@ -31,13 +31,19 @@ public class Priority extends AlgoritmoAgendamento{
 
                 //Verificar se o processo em execução terminou
                 if(processoEmExecucao.getTempoExecucao() == currentTime-startTimeProcEmExec){
-                    agendamento.add(new AgendamentoItem(processoEmExecucao.getId(), startTimeProcEmExec, currentTime, true));
+                	agendamento.add(new AgendamentoItem(processoEmExecucao.getId(), 
+            				startTimeProcEmExec, currentTime, true,
+            				processoEmExecucao.getTempoChegada(),
+            				processoEmExecucao.getDuracao()));
                     
+                	processos.remove(processoEmExecucao);
+                	
                     processoEmExecucao.calcularMetricas(startTimeProcEmExec, currentTime, writer);
                     
-                    processos.remove(processoEmExecucao);
                     processoEmExecucao = null;
                     startTimeProcEmExec = null;
+                    
+                    addProcesso();
                 }
                 //Verificar se o processo em execução esta bloqueado
                 else if(processoEmExecucao.isBloqueado(currentTime)){
